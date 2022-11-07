@@ -37,10 +37,10 @@ import net.md_5.bungee.api.ChatColor;
 
 public class DefaultCommands implements CommandExecutor, TabCompletor {
 
-	private String cmdSuffix = null;
+	private String trailer = null;
 
-	public DefaultCommands(String cmdSuffix) {
-		if (cmdSuffix == null) {
+	public DefaultCommands(String trailer) {
+		if (trailer == null) {
 			return;
 		}
 
@@ -49,20 +49,20 @@ public class DefaultCommands implements CommandExecutor, TabCompletor {
 
 		Properties p = new Properties();
 		try {
-			p.load(new StringReader("cmdsuffix=" + cmdSuffix + "\n"));
-			this.cmdSuffix = p.getProperty("cmdsuffix");
+			p.load(new StringReader("trailer=" + trailer + "\n"));
+			this.trailer = p.getProperty("trailer");
 		} catch (IOException e) {
-			System.out.println(String.format("parse cmdsuffix: %s", e.toString()));
+			System.out.println(String.format("parse cmdtrailer: %s", e.toString()));
 			System.exit(1);
 		}
 	}
 
 	private void cmdend(CommandSender sender) {
-		if (cmdSuffix == null) {
+		if (trailer == null) {
 			return;
 		}
 
-		sender.sendMessage(cmdSuffix);
+		sender.sendMessage(trailer);
 	}
 	
 	@Override

@@ -90,10 +90,10 @@ public class Console implements CommandSender {
 	private String prompt = PROMPT;
 	
 	public Console(InputStream in, PrintStream out, PrintStream err, String prompt) throws IOException {
-		// The use of Properties enables parsing of escaped characters (like \n and friends) in the input string
-		// See https://stackoverflow.com/questions/1327355/is-there-a-java-function-which-parses-escaped-characters#answer-26137606
-
 		if (prompt != null) {
+			// The use of Properties enables parsing of escaped characters (like \n and friends) in the input string
+			// See https://stackoverflow.com/questions/1327355/is-there-a-java-function-which-parses-escaped-characters#answer-26137606
+
 			Properties p = new Properties();
 			p.load(new StringReader("prompt=" + prompt + "\n"));
 			this.prompt = p.getProperty("prompt");

@@ -95,7 +95,7 @@ public class Limbo {
 	private static Limbo instance;
 	public static boolean noGui = false;
 	public static String prompt = null;
-	public static String cmdSuffix = null;
+	public static String trailer = null;
 	
 	public static void main(String args[]) throws IOException, ParseException, NumberFormatException, ClassNotFoundException, InterruptedException {
 		boolean fail = false;
@@ -106,7 +106,7 @@ public class Limbo {
 				System.out.println("Accepted flags:");
 				System.out.println(" --nogui <- Disable the GUI");
 				System.out.println(" --prompt=<text> <- set the prompt to the given text instead of the default");
-				System.out.println(" --cmdsuffix=<text> <- output <text> as the last line of command output (default=none)");
+				System.out.println(" --cmdtrailer=<text> <- output <text> as the last line of command output (default=none)");
 				System.exit(0);
 			} else {
 				String[] fields = flag.split("=", 2);
@@ -117,11 +117,11 @@ public class Limbo {
 						System.out.println("syntax error: --prompt value is missing");
 						fail = true;
 					}
-				} else if(fields[0].equals("--cmdsuffix")) {
+				} else if(fields[0].equals("--cmdtrailer")) {
 					if (fields.length == 2) {
-						cmdSuffix = fields[1];
+						trailer = fields[1];
 					} else {
-						System.out.println("syntax error: --cmdsuffix value is missing");
+						System.out.println("syntax error: --cmdtrailer value is missing");
 						fail = true;
 					}
 				} else {
@@ -344,7 +344,7 @@ public class Limbo {
         pluginFolder = new File("plugins");
         pluginFolder.mkdirs();
 		
-	    pluginManager = new PluginManager(new DefaultCommands(cmdSuffix), pluginFolder);
+	    pluginManager = new PluginManager(new DefaultCommands(trailer), pluginFolder);
 	    try {
 			Method loadPluginsMethod = PluginManager.class.getDeclaredMethod("loadPlugins");
 			loadPluginsMethod.setAccessible(true);
