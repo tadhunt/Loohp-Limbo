@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -84,8 +86,19 @@ public class Console implements CommandSender {
 	@SuppressWarnings("unused")
 	private PrintStream err;
 	protected PrintStream logs;
+
+	private String prompt = PROMPT;
 	
-	public Console(InputStream in, PrintStream out, PrintStream err) throws IOException {
+	public Console(InputStream in, PrintStream out, PrintStream err, String prompt) throws IOException {
+		// The use of Properties enables parsing of escaped characters (like \n and friends) in the input string
+		// See https://stackoverflow.com/questions/1327355/is-there-a-java-function-which-parses-escaped-characters#answer-26137606
+
+		if (prompt != null) {
+			Properties p = new Properties();
+			p.load(new StringReader("prompt=" + prompt + "\n"));
+			this.prompt = p.getProperty("prompt");
+		}
+
 		String fileName = new SimpleDateFormat("yyyy'-'MM'-'dd'_'HH'-'mm'-'ss'_'zzz'.log'").format(new Date());
         File dir = new File("logs");
         dir.mkdirs();
@@ -257,7 +270,7 @@ public class Console implements CommandSender {
 		}
 		while (true) {
 			try {
-				String command = tabReader.readLine(PROMPT).trim();
+				String command = tabReader.readLine(prompt).trim();
 				if (command.length() > 0) {
 					String[] input = CustomStringUtils.splitStringToArgs(command);
 					new Thread(() -> Limbo.getInstance().dispatchCommand(this, input)).start();

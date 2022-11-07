@@ -19,9 +19,12 @@
 
 package com.loohp.limbo.commands;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import com.loohp.limbo.Console;
 import com.loohp.limbo.Limbo;
@@ -33,6 +36,34 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatColor;
 
 public class DefaultCommands implements CommandExecutor, TabCompletor {
+
+	private String cmdSuffix = null;
+
+	public DefaultCommands(String cmdSuffix) {
+		if (cmdSuffix == null) {
+			return;
+		}
+
+		// The use of Properties enables parsing of escaped characters (like \n and friends) in the input string
+		// See https://stackoverflow.com/questions/1327355/is-there-a-java-function-which-parses-escaped-characters#answer-26137606
+
+		Properties p = new Properties();
+		try {
+			p.load(new StringReader("cmdsuffix=" + cmdSuffix + "\n"));
+			this.cmdSuffix = p.getProperty("cmdsuffix");
+		} catch (IOException e) {
+			System.out.println(String.format("parse cmdsuffix: %s", e.toString()));
+			System.exit(1);
+		}
+	}
+
+	private void cmdend(CommandSender sender) {
+		if (cmdSuffix == null) {
+			return;
+		}
+
+		sender.sendMessage(cmdSuffix);
+	}
 	
 	@Override
 	public void execute(CommandSender sender, String[] args) {
@@ -46,6 +77,7 @@ public class DefaultCommands implements CommandExecutor, TabCompletor {
 			} else {
 				sender.sendMessage(ChatColor.RED + "You do not have permission to use that command!");
 			}
+			cmdend(sender);
 			return;
 		}
 
@@ -69,6 +101,7 @@ public class DefaultCommands implements CommandExecutor, TabCompletor {
 			} else {
 				sender.sendMessage(ChatColor.RED + "You do not have permission to use that command!");
 			}
+			cmdend(sender);
 			return;
 		}
 		
@@ -78,6 +111,7 @@ public class DefaultCommands implements CommandExecutor, TabCompletor {
 			} else {
 				sender.sendMessage(ChatColor.RED + "You do not have permission to use that command!");
 			}
+			cmdend(sender);
 			return;
 		}
 		
@@ -108,6 +142,7 @@ public class DefaultCommands implements CommandExecutor, TabCompletor {
 			} else {
 				sender.sendMessage(ChatColor.RED + "You do not have permission to use that command!");
 			}
+			cmdend(sender);
 			return;
 		}
 		
@@ -138,6 +173,7 @@ public class DefaultCommands implements CommandExecutor, TabCompletor {
 			} else {
 				sender.sendMessage(ChatColor.RED + "You do not have permission to use that command!");
 			}
+			cmdend(sender);
 			return;
 		}
 		
@@ -163,6 +199,7 @@ public class DefaultCommands implements CommandExecutor, TabCompletor {
 			} else {
 				sender.sendMessage(ChatColor.RED + "You do not have permission to use that command!");
 			}
+			cmdend(sender);
 			return;
 		}
 		if (args[0].equalsIgnoreCase("allowlist")) {
@@ -177,8 +214,12 @@ public class DefaultCommands implements CommandExecutor, TabCompletor {
 			} else {
 				sender.sendMessage(ChatColor.RED + "You do not have permission to use that command!");
 			}
+			cmdend(sender);
 			return;
 		}
+
+		sender.sendMessage(ChatColor.RED + String.format("%s: unknown command!", args[0]));
+		cmdend(sender);
 	}
 	
 	@Override

@@ -94,19 +94,46 @@ public class Limbo {
 
 	private static Limbo instance;
 	public static boolean noGui = false;
+	public static String prompt = null;
+	public static String cmdSuffix = null;
 	
 	public static void main(String args[]) throws IOException, ParseException, NumberFormatException, ClassNotFoundException, InterruptedException {
+		boolean fail = false;
 		for (String flag : args) {
 			if (flag.equals("--nogui") || flag.equals("nogui")) {
 				noGui = true;
 			} else if (flag.equals("--help")) {
 				System.out.println("Accepted flags:");
 				System.out.println(" --nogui <- Disable the GUI");
+				System.out.println(" --prompt=<text> <- set the prompt to the given text instead of the default");
+				System.out.println(" --cmdsuffix=<text> <- output <text> as the last line of command output (default=none)");
 				System.exit(0);
 			} else {
-				System.out.println("Unknown flag: \"" + flag + "\". Ignoring...");
+				String[] fields = flag.split("=", 2);
+				if (fields[0].equals("--prompt")) {
+					if (fields.length == 2) {
+						prompt = fields[1];
+					} else {
+						System.out.println("syntax error: --prompt value is missing");
+						fail = true;
+					}
+				} else if(fields[0].equals("--cmdsuffix")) {
+					if (fields.length == 2) {
+						cmdSuffix = fields[1];
+					} else {
+						System.out.println("syntax error: --cmdsuffix value is missing");
+						fail = true;
+					}
+				} else {
+					System.out.println("Unknown flag: \"" + flag + "\"");
+					fail = true;
+				}
 			}
 		}
+		if (fail) {
+			System.exit(1);
+		}
+
 		if (GraphicsEnvironment.isHeadless()) {
 			noGui = true;
 		}
@@ -174,9 +201,9 @@ public class Limbo {
 			while (!GUI.loadFinish) {
 				TimeUnit.MILLISECONDS.sleep(500);
 			}
-			console = new Console(null, System.out, System.err);
+			console = new Console(null, System.out, System.err, prompt);
 		} else {
-			console = new Console(System.in, System.out, System.err);
+			console = new Console(System.in, System.out, System.err, prompt);
 		}
 				
 		LIMBO_IMPLEMENTATION_VERSION = getLimboVersion();
@@ -317,7 +344,7 @@ public class Limbo {
         pluginFolder = new File("plugins");
         pluginFolder.mkdirs();
 		
-	    pluginManager = new PluginManager(new DefaultCommands(), pluginFolder);
+	    pluginManager = new PluginManager(new DefaultCommands(cmdSuffix), pluginFolder);
 	    try {
 			Method loadPluginsMethod = PluginManager.class.getDeclaredMethod("loadPlugins");
 			loadPluginsMethod.setAccessible(true);
